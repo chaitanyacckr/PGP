@@ -87,4 +87,22 @@ public class RSAKeyPairGenerator {
 			exportKeyPair(out1, out2, kp.getPublic(), kp.getPrivate(), args[0], args[1].toCharArray(), false);
 		}
 	}
+	
+	RestTemplate restTemplate = new RestTemplate();
+
+CredentialsProvider credsProvider = new BasicCredentialsProvider();
+credsProvider.setCredentials( new AuthScope("proxyHost", "proxyPort"), new UsernamePasswordCredentials("proxyUser", "proxyPass") );
+HttpClientBuilder clientBuilder = HttpClientBuilder.create();
+
+clientBuilder.useSystemProperties();
+clientBuilder.setProxy(new HttpHost("proxyHost", "proxyPort"));
+clientBuilder.setDefaultCredentialsProvider(credsProvider);
+clientBuilder.setProxyAuthenticationStrategy(new ProxyAuthenticationStrategy());
+
+CloseableHttpClient client = clientBuilder.build();
+
+HttpComponentsClientHttpRequestFactory factory = new HttpComponentsClientHttpRequestFactory();
+factory.setHttpClient(client);
+
+restTemplate.setRequestFactory(factory)
 }
