@@ -29,6 +29,19 @@ import org.bouncycastle.openpgp.PGPSignature;
  * Where identity is the name to be associated with the public key. The keys are
  * placed in the files pub.[asc|bpg] and secret.[asc|bpg].
  */
+KeyStore keyStore = KeyStore.getInstance(KeyStore.getDefaultType());
+keyStore.load(new FileInputStream(new File("keystore.jks")),
+        "secret".toCharArray());
+SSLConnectionSocketFactory socketFactory = new SSLConnectionSocketFactory(
+        new SSLContextBuilder()
+                .loadTrustMaterial(null, new TrustSelfSignedStrategy())
+                .loadKeyMaterial(keyStore, "password".toCharArray()).build());
+HttpClient httpClient = HttpClients.custom().setSSLSocketFactory(socketFactory).build();
+ClientHttpRequestFactory requestFactory = new HttpComponentsClientHttpRequestFactory(
+        httpClient);
+RestTemplate restTemplate = new RestTemplate(requestFactory);
+ResponseEntity<String> response = restTemplate.getForEntity(
+        "https://localhost:8443", String.class);
 public class RSAKeyPairGenerator {
 	private static void exportKeyPair(OutputStream secretOut, OutputStream publicOut, PublicKey publicKey,
 			PrivateKey privateKey, String identity, char[] passPhrase, boolean armor)
